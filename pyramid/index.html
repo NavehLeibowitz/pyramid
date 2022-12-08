@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="osd_viewer/openseadragon.js"></script>
+    <script src="osd_viewer/openseadragon-scalebar.js"></script>
+    <script src="osd_viewer/openseadragon-svg-overlay.js"></script>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+      .openseadragon1 {
+        height: 90%;
+      }
+
+      body {
+        text-align: center;
+      }
+
+      footer {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        padding: 0.3rem;
+        text-align: left;
+      }
+
+      #viewerContainer {
+        position: absolute;
+        top: 60px;
+        bottom: 10px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+        width: 100%;
+        height: auto;
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: 100%, font-family: sans-serif;
+      }
+
+      .footer-img {
+        height: auto;
+        width: auto;
+        max-width: 190px;
+        max-height: 48px;
+      }
+
+      html {
+        font-size: 100%;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+
+      html,
+      button,
+      input,
+      select,
+      textarea {
+        font-family: sans-serif;
+      }
+
+      img {
+        border: 0;
+        -ms-interpolation-mode: bicubic;
+        vertical-align: middle;
+      }
+
+      * {
+        font-family: 'Open Sans', sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h2> Image viewer </h2>
+    </header>
+    <div id="viewerContainer">
+      <div id="contentDiv" class="openseadragon1"></div>
+    </div>
+    <footer class="footer navbar-fixed-bottom" id="scopio_footer">
+      <span class="footer-text">Powered by</span>
+      <img class="footer-img" alt="ScopioLabs Logo" src="scopio_logo.png" />
+      <label id="pointlabel" style="visibility:hidden;">(x,y):</label>
+      <input type="text" id="pointcoor" style="visibility:hidden;">
+      <button id="findFovBtn" type="button" style="visibility:hidden;" class="btn">
+        find FOV indices
+      </button>
+      <button id="gridBtn" type="button" style="visibility:hidden;" class="btn">
+        show FOV grid</button>
+      <label class="checkbox-inline" id="showFovInfoLabel" style="visibility:hidden;"><input type="checkbox" value="" id="showFovInfo"> Show debug info</label>
+    </footer>
+
+    <!-- <footer>
+      <span class="footer-text">Powered by</span>
+      <img class="footer-img" alt="ScopioLabs Logo" src="scopio_logo.png" />
+      <label id="pointlabel" style="visibility:hidden;">(x,y):</label> <input type="text" id="pointcoor" style="visibility:hidden;">
+      <button id="findFovBtn" type="button" style="visibility:hidden;"> find FOV indices </button>
+      <button id="gridBtn" type="button" style="visibility:hidden;"> show FOV grid</button>
+      <button id="reloadBtn" type="button"> reload tiles</button>
+
+    </footer> -->
+    <script type="text/javascript">
+
+      var viewer = OpenSeadragon({
+        id: "contentDiv",
+        prefixUrl: "osd_viewer/images/",
+        tileSources: ["/pyramid.dzi"],
+        maxZoomPixelRatio: 4,
+        showNavigator: true,
+        sequenceMode: true,
+        preserveViewport: true,
+		debugMode:  true,
+      });
+
+
+
+      viewer.scalebar({
+        xOffset: 10,
+        yOffset: 10,
+        barThickness: 3,
+        color: '#555555',
+        fontColor: '#333333',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+      });
+      // Update scale
+      viewer.scalebar({
+        pixelsPerMeter: (4976907),
+      });
+
+
+
+    </script>
+  </body>
+
+</html>

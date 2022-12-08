@@ -1,0 +1,223 @@
+import xml.dom.minidom
+# import numpy as np
+# docTree = xml.dom.minidom.parse("C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid.dzi")
+# image = docTree.getElementsByTagName("Image")
+# for i in image:
+#     print(i.getAttribute("xmlns"))
+
+# zoom_directory_dict = {1:'0', 1/2: '1', 1/4:'2', 1/8:'3', 1/16:'4', 1/32:'5', 1/64:'6',
+#               1/128:'7', 1/256:'8', 1/512:'9', 1/1024:'10', 1/2048: '11', 1/4096:'12'}
+# zoom_pixels_dict = {1: 1, 1/2: 2, 1/4: 4, 1/8: 8, 1/16: 16, 1/32:32, 1/64:64,
+#               1/128: 128, 1/256: 256, 1/512: 256, 1/1024: 256, 1/2048: 256, 1/4096: 256}
+
+
+# resolution_16 = [tile_px*i for i in range(1,17)]
+# print(resolution_16)
+
+# symbol = [[ [tile_px*col, tile_px*row] for col in range(1,17)] for row in range(1,17)]
+# print(symbol)
+
+
+
+
+    #cv2.imshow('hello', img_1)
+
+
+
+# [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+
+# cv2.imshow('hello',)
+
+import cv2
+import math
+import numpy as np
+import boto3
+import os
+
+
+def read_file_with_s3(zoom_directory, width_x, height_y):
+    PYRAMID_FULL_PATH = os.path.abspath('..\\pyramid\\pyramid_files')
+    pyramid_file = "%s\\%s\\%s_%s.jpg"
+    file_path = pyramid_file % (PYRAMID_FULL_PATH,zoom_directory,width_x, height_y)
+
+    s3 = boto3.client("s3")
+    s3.download_file(
+    Bucket="pyramid", Key=file_path, Filename="s3_pyramid_files/photo.jpg"
+    )
+
+
+region_len = 2
+coordinate_len = 2
+start_coordinate_index = 0
+end_coordinate_index = 1
+width_index = 0
+height_index = 1
+
+max_1_image_level = 8
+
+ 
+
+def image_slicer(image ,region, tile_px):
+    height_start_modulo = region[start_coordinate_index][height_index] % tile_px
+    height_difference = region[end_coordinate_index][height_index] - \
+                        region[start_coordinate_index][height_index] 
+    width_start_modulo = region[start_coordinate_index][width_index] % tile_px
+    width_difference = region[end_coordinate_index][width_index] - \
+                       region[start_coordinate_index][width_index]
+                    
+
+    return image[height_start_modulo - 1:
+                 height_start_modulo + height_difference - 1, 
+                 width_start_modulo  - 1:
+                 width_start_modulo + width_difference - 1] 
+
+def get_maximum_level():
+    docTree = xml.dom.minidom.parse("C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid.dzi")
+    size = docTree.getElementsByTagName("Size")
+    for i in size:
+        height = i.getAttribute("Height")
+        width = i.getAttribute("Width")
+    return math.ceil(max(math.log(int(width), 2),
+           math.log(int(height), 2)))
+
+def get_tile_size():
+    docTree = xml.dom.minidom.parse("C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid.dzi")
+    image = docTree.getElementsByTagName("Image")
+    for i in image:
+        tileSize = int(i.getAttribute("TileSize"))
+    return tileSize
+
+
+def is_power_of_two(n):
+    if n == 1:
+        return True
+    return math.ceil(math.log2(n)) == math.floor(math.log2(n))
+
+
+def zoom_to_directory(zoom):
+    max_level = 12
+    # if zoom == 1:
+    #     offset = 0
+    # else:
+    offset = int(math.floor(math.log(1/zoom, 2)))
+    return str(max_level - offset)
+
+
+def read_img(zoom_directory, width_x, height_y):
+    pyramid_file_formatted_string = "C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\" \
+                                        "    pyramid_files\\%s\\%s_%s.jpg"
+    return cv2.imread(pyramid_file_formatted_string % (
+                zoom_directory,width_x, height_y))
+
+
+def coordinates_to_tiles(region, tile_px):
+    tiles = []
+    for i in range(region_len):
+        tiles_axis = []
+        for j in range(coordinate_len):
+            tiles_axis.append(region[i][j]//(tile_px+1))
+        tiles.append(tiles_axis)
+    return tiles
+
+
+def pixels_with_zoom(region, zoom):
+    # zoom_pixel_devision = 2 ^ int(math.log(1/zoom, 2))
+    # if(isPowerOfTwo(zoom)):
+    #     zoom_pixel_devision = 1/zoom
+    # else:
+    zoom_pixel_devision = pow(2, math.floor(math.log2(1/zoom)))
+    #max_level = get_maximum_level()
+    #zoom_level = max_level - int(math.log(1/zoom, 2))
+    #for dividing_times in range(zoom_level, max_level):
+    for j in range(region_len):
+        for k in range(coordinate_len):
+#if region[j][k] // zoom_pixel_devision != 0:
+            region[j][k] = region[j][k] // zoom_pixel_devision
+    return region
+
+
+class Pyramid:
+    def __init__(self) -> None:
+        pass
+
+    def read(self, region, zoom=1):
+        tile_size = get_tile_size()
+        scaled_region = pixels_with_zoom(region, zoom)
+        zoom_directory = zoom_to_directory(zoom)
+        tiles = coordinates_to_tiles(scaled_region, tile_size)
+        if int(zoom_directory) > max_1_image_level:
+
+
+   #         read_file_with_s3(zoom_directory, tiles[start_coordinate_index][width_index], 
+    #                                          tiles[start_coordinate_index][height_index])
+
+            # pyramid_file_formatted_string = "C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid_files\\%s\\%s_%s.jpg"
+            # cv2.imread(pyramid_file_formatted_string % (
+            #         zoom_directory,width_x, height_y))
+
+            height = tiles[end_coordinate_index][height_index] - \
+            tiles[start_coordinate_index][height_index] + 1
+            width = tiles[end_coordinate_index][width_index] - \
+            tiles[start_coordinate_index][width_index] + 1
+            vertical_images_arr=[]
+            for current_height in range(height):
+                horizontal_images_arr = []
+                for current_width in range(width):
+                    horizontal_images_arr.append(
+                        read_img(zoom_directory, tiles[start_coordinate_index][width_index] + current_width, 
+                                                 tiles[start_coordinate_index][height_index] + current_height))
+                
+                vertical_images_arr.append(cv2.hconcat(horizontal_images_arr))
+
+            image = cv2.vconcat(vertical_images_arr)
+            
+        else:
+            image = read_img(zoom_directory, tiles[start_coordinate_index][width_index], tiles[start_coordinate_index][height_index])
+        sliced_image = image_slicer(image, scaled_region, tile_size)
+
+        if is_power_of_two(zoom):
+            return sliced_image
+        else:
+            nearest_power = pow(2, math.floor(math.log2(1/zoom)))
+            scale_percent =  zoom/(1/nearest_power)
+            width = int(sliced_image.shape[1] * scale_percent)
+            height = int(sliced_image.shape[0] * scale_percent)
+            dim = (width, height)
+            resized_image = cv2.resize(sliced_image, dim, interpolation = cv2.INTER_AREA)
+            return resized_image
+        # cv2.imshow('hello', sliced_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        # cv2.waitKey(1)
+        
+        
+
+
+
+# region = []
+# for i in range(region_len):
+#     lst = []
+#     for j in range(coordinate_len):
+#         coordinate = int(input("insert coordinate (%d, %d) here:" % (i, j)))
+#         lst.append(coordinate) 
+#     region.append(lst)
+
+# image_zoom = float(input("insert image zoom here:"))  
+
+# pyramid = Pyramid()
+# pyramid.read(region, image_zoom)

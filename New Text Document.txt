@@ -1,0 +1,114 @@
+# import xml.dom.minidom
+import cv2
+# import numpy as np
+# docTree = xml.dom.minidom.parse("C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid.dzi")
+# image = docTree.getElementsByTagName("Image")
+# for i in image:
+#     print(i.getAttribute("xmlns"))
+
+
+tile_px = 256
+import numpy as np    
+zoom_chart = {1:'0', 1/2: '1', 1/4:'2', 1/8:'3', 1/16:'4', 1/32:'5', 1/64:'6',
+              1/128:'7', 1/256:'8', 1/512:'9', 1/1024:'10', 1/2048: '11', 1/4096:'12'}
+pixels_charrt
+
+pyramid_file_formatted_string = "C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid_files\\%s\\%s_%s.jpg"
+
+# resolution_16 = [tile_px*i for i in range(1,17)]
+# print(resolution_16)
+
+# symbol = [[ [tile_px*col, tile_px*row] for col in range(1,17)] for row in range(1,17)]
+# print(symbol)
+
+def concat_vertically(coordinate_row1, coordinate_row2, 
+                      coordinate_col1, coordinate_col2, zoom=1/4096):
+
+def concat_horizontally(coordinate_row1, coordinate_row2,
+                        coordinate_col, zoom=1/4096):
+    
+    row1 = coordinate_row1//tile_px 
+    col1 = coordinate_col1//tile_px
+
+    row2 = coordinate_row2//tile_px
+    col2 = coordinate_col2//tile_px
+
+    zoom_directory = zoom_chart[zoom]
+
+    img_1 = cv2.imread(
+             pyramid_file_formatted_string % (
+             zoom_directory,row1, col1))
+
+    if(row1 == row2):
+        cropped_img = img_1[coordinate_row1%tile_px:row2%tile_px, :]
+        if img_1.size != 0:
+            return cropped_img
+
+
+    if(row1 != row2):
+#    path = r'C:\Users\Rajnish\Desktop\geeksforgeeks.png'
+
+        img_1 = cv2.imread(
+                pyramid_file_formatted_string % (
+                zoom_directory, row1, col1))
+        img_1 = img_1[row1%256:, :]
+
+        for current_row in range(row1, row2-1):
+        
+            img_2 = cv2.imread(
+                pyramid_file_formatted_string % (
+                zoom_directory,current_row+1, row1))
+                
+            img_1 = cv2.hconcat(img_1, img_2)
+
+        im_g = cv2.imread(
+                "C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid_files\\12\\%s_%s.jpg" % (
+                x, y))
+
+        cropped_img = im_g[:coordinate_row2%tile_px, :]
+        img_1 = cv2.hconcat(img_1, cropped_img)
+        return img_1
+        
+    #cv2.imshow('hello', img_1)
+coordinate_row1, coordinate_col1 = input("insert start coordinates:").split()
+coordinate_row2, coordinate_col2 = input("insert end coordinates:").split()
+coordinate_col1 = int(coordinate_col1)
+coordinate_col2 = int(coordinate_col2)
+coordinate_row1 = int(coordinate_row1)
+coordinate_row2 = int(coordinate_row2)
+
+
+
+# [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+#                      [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+
+# cv2.imshow('hello',)
+
+
+# class Pyramid:
+#     def read(self):
+#         coordinate_row1, coordinate_col1 = input("insert start coordinates:").split()
+#         coordinate_row2, coordinate_col2 = input("insert end coordinates:").split()
+#         zoom = input("insert zoom:")
+#         im_g = cv2.imread(
+#             "C:\\Users\\ayall.UPTRADE\\Desktop\\interview_pyramid_assignment\\pyramid\\pyramid_files\\12\\%s_%s.jpg" % (
+#             x, y))
+#         cropped_img = im_g[coordinate_row1:coordinate_row2, coordinate_col1:coordinate_col2]
+#         cv2.resize(img, None, fx=zoom, fy=zoom)
+#         return cropped_and_scaled_img
+
+
